@@ -1,0 +1,58 @@
+{
+  "name": "@github-api/gist",
+  "version": "1.0.0",
+  "description": "GitHub Gists API client - CLI tool and SDK for managing GitHub gists",
+  "type": "module",
+  "main": "index.mjs",
+  "bin": {
+    "gist": "./cli.mjs"
+  },
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "npm test -- --watch",
+    "test:coverage": "npm test -- --coverage",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "github",
+    "gist",
+    "api",
+    "cli",
+    "sdk",
+    "rest",
+    "client"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1",
+    "inquirer": "^9.2.12",
+    "js-yaml": "^4.1.0",
+    "ora": "^7.0.1",
+    "cli-table3": "^0.6.3"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "@types/node": "^20.10.0",
+    "eslint": "^8.54.0",
+    "prettier": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "index.mjs",
+    "cli.mjs",
+    "lib/",
+    "types/",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/github-gist-api.git"
+  }
+}

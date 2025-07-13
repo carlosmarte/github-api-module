@@ -1,0 +1,14 @@
+{
+  "token": "your_github_personal_access_token_here",
+  "baseUrl": "https://api.github.com",
+  "timeout": 30000,
+  "retries": 3,
+  "pagination": {
+    "perPage": 30
+  },
+  "logging": {
+    "level": "info",
+    "console": true,
+    "file": "./reactions.log"
+  }
+}

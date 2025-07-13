@@ -1,0 +1,12 @@
+{
+  "baseUrl": "https://api.github.com",
+  "perPage": 30,
+  "outputFormat": "table",
+  "colorize": true,
+  "interactive": false,
+  "owner": "<your-github-username-or-org>",
+  "repo": "<your-repository-name>",
+  "test": "config",
+  "testKey": "testValue",
+  "newKey": "newValue"
+}

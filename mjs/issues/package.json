@@ -1,0 +1,53 @@
+{
+  "name": "@github-api/issues",
+  "version": "1.0.0",
+  "description": "GitHub Issues API client and CLI tool",
+  "type": "module",
+  "main": "index.mjs",
+  "bin": {
+    "gh-issues": "./cli.mjs"
+  },
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test:watch": "node --experimental-vm-modules node_modules/.bin/jest --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/.bin/jest --coverage",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "github",
+    "issues",
+    "api",
+    "cli",
+    "sdk",
+    "github-api",
+    "issue-tracker"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1",
+    "inquirer": "^9.2.12",
+    "node-fetch": "^3.3.2",
+    "ora": "^7.0.1",
+    "table": "^6.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "eslint": "^8.56.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/github-api-module.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/github-api-module/issues"
+  }
+}

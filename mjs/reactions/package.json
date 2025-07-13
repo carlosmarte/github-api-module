@@ -1,0 +1,79 @@
+{
+  "name": "@github-api/reactions",
+  "version": "1.0.0",
+  "description": "GitHub Reactions API CLI and SDK - Interact with reactions to various GitHub entities",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "main": "./src/index.mjs",
+  "bin": {
+    "github-reactions": "./src/cli.mjs"
+  },
+  "exports": {
+    ".": {
+      "import": "./src/index.mjs"
+    },
+    "./client": {
+      "import": "./src/client/ReactionsClient.mjs"
+    },
+    "./types": {
+      "import": "./src/core/types.mjs"
+    }
+  },
+  "files": [
+    "src",
+    "types",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node src/cli.mjs",
+    "dev": "node --watch src/cli.mjs",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src --ext .mjs",
+    "lint:fix": "eslint src --ext .mjs --fix",
+    "format": "prettier --write \"src/**/*.mjs\"",
+    "docs": "jsdoc -c jsdoc.json",
+    "prepare": "husky install",
+    "prepublishOnly": "npm test"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0",
+    "inquirer": "^9.2.0",
+    "joi": "^17.11.0",
+    "ora": "^8.0.1",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.0.0",
+    "jest": "^30.1.1",
+    "jsdoc": "^4.0.0",
+    "prettier": "^3.2.0"
+  },
+  "keywords": [
+    "github",
+    "reactions",
+    "api",
+    "cli",
+    "sdk",
+    "nodejs",
+    "rest-api",
+    "github-api"
+  ],
+  "author": "GitHub API Module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/github-api-module/reactions.git"
+  },
+  "bugs": {
+    "url": "https://github.com/github-api-module/reactions/issues"
+  },
+  "homepage": "https://github.com/github-api-module/reactions#readme"
+}

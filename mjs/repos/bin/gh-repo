@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+/**
+ * GitHub Repository CLI Binary
+ * This file serves as the executable entry point for the CLI
+ */
+
+import '../cli.mjs';
