@@ -6,6 +6,7 @@ A comprehensive guide for using the Git Repository Management SDK and CLI.
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Progress Tracking](#progress-tracking)
 - [SDK API](#sdk-api)
   - [GitClient](#gitclient)
   - [High-Level Operations](#high-level-operations)
@@ -71,6 +72,186 @@ gh-clone pull hello-world
 gh-clone push hello-world
 ```
 
+## Progress Tracking
+
+The SDK includes comprehensive progress tracking powered by `@thinkeloquent/cli-progressor`. **Progress is silent by default** - consuming applications have complete control over how progress is displayed.
+
+### Key Features
+
+- **Silent by default**: No output unless explicitly requested
+- **Consuming app controls display**: Progress data provided via callbacks
+- **Multiple consumers**: Same progress data can feed multiple systems
+- **Detailed information**: Stages, percentages, timing, messages
+
+### Basic Progress Usage
+
+```javascript
+import { clone } from '@thinkeloquent/github-sdk-clone';
+
+// Silent progress with custom handling
+const repo = await clone(
+  'https://github.com/octocat/Hello-World.git',
+  'hello-world',
+  {
+    onProgress: (data) => {
+      console.log(`${data.percentage}% - ${data.message}`);
+      // Send to analytics, update UI, etc.
+    },
+    onStageChange: (data) => {
+      console.log(`Stage: ${data.stage.toUpperCase()}`);
+    },
+    onComplete: (data) => {
+      console.log('Clone completed!', data.result);
+    }
+  }
+);
+```
+
+### CLI Progress Bar
+
+```javascript
+// Show visual progress bar in terminal
+const repo = await clone(repoUrl, targetDir, {
+  showProgress: true
+});
+```
+
+### Progress Data Structure
+
+```javascript
+// Progress events
+{
+  operationId: 'clone-hello-world-1640000000000',
+  stage: 'cloning',
+  step: 45,
+  total: 100,
+  percentage: 45,
+  message: 'Receiving objects: 45%'
+}
+
+// Stage change events
+{
+  operationId: 'clone-hello-world-1640000000000',
+  stage: 'resolving_deltas',
+  description: 'Resolving deltas...',
+  timestamp: '2024-01-01T12:00:00.000Z'
+}
+```
+
+### Clone Stages
+
+```javascript
+import { CLONE_STAGES } from '@thinkeloquent/github-sdk-clone';
+
+// Available stages:
+CLONE_STAGES.INITIALIZING    // 'initializing'
+CLONE_STAGES.CLONING        // 'cloning'
+CLONE_STAGES.RESOLVING_DELTAS // 'resolving_deltas'
+CLONE_STAGES.CHECKING_OUT   // 'checking_out'
+CLONE_STAGES.COMPLETE       // 'complete'
+```
+
+### Custom Progress Manager
+
+```javascript
+import { createSilentProgressManager } from '@thinkeloquent/github-sdk-clone';
+
+const customManager = createSilentProgressManager({
+  onProgress: (data) => {
+    // Send to database
+    database.log('clone_progress', data);
+    
+    // Update UI
+    updateProgressBar(data.percentage);
+    
+    // Send to analytics
+    analytics.track('clone_progress', {
+      percentage: data.percentage,
+      stage: data.stage
+    });
+  }
+});
+
+const repo = await clone(repoUrl, targetDir, {
+  progressManager: customManager
+});
+```
+
+### Multiple Progress Consumers
+
+```javascript
+// Different systems consuming the same progress data
+const combinedHandler = (data) => {
+  // Logger
+  logger.info(`Clone progress: ${data.percentage}%`);
+  
+  // Database
+  database.updateCloneStatus(data.operationId, data.percentage);
+  
+  // UI Update
+  progressBar.setValue(data.percentage);
+  statusText.setText(data.message);
+  
+  // Notifications
+  if (data.percentage % 25 === 0) {
+    showNotification(`Clone ${data.percentage}% complete`);
+  }
+};
+
+const repo = await clone(repoUrl, targetDir, {
+  onProgress: combinedHandler
+});
+```
+
+### React Integration Example
+
+```jsx
+function CloneComponent() {
+  const [progress, setProgress] = useState({
+    isLoading: false,
+    percentage: 0,
+    stage: null,
+    message: ''
+  });
+
+  const handleClone = async (repoUrl) => {
+    setProgress({ isLoading: true, percentage: 0 });
+    
+    try {
+      await clone(repoUrl, 'target-dir', {
+        onProgress: (data) => setProgress(prev => ({
+          ...prev,
+          percentage: data.percentage,
+          message: data.message,
+          stage: data.stage
+        })),
+        onComplete: () => setProgress(prev => ({
+          ...prev,
+          isLoading: false
+        }))
+      });
+    } catch (error) {
+      setProgress(prev => ({
+        ...prev,
+        isLoading: false,
+        error: error.message
+      }));
+    }
+  };
+
+  return (
+    <div>
+      {progress.isLoading && (
+        <div>
+          <progress value={progress.percentage} max="100" />
+          <p>{progress.stage}: {progress.message}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
 ## SDK API
 
 ### GitClient
@@ -94,7 +275,7 @@ const client = new GitClient(options);
 
 ##### clone(repoUrl, targetDir, options)
 
-Clone a repository.
+Clone a repository with comprehensive progress tracking.
 
 ```javascript
 const repo = await client.clone(
@@ -103,7 +284,9 @@ const repo = await client.clone(
   {
     branch: 'main',
     depth: 1,
-    progress: (progress) => console.log(progress)
+    onProgress: (data) => console.log(`${data.percentage}% - ${data.message}`),
+    onStageChange: (data) => console.log(`Stage: ${data.stage}`),
+    onComplete: (data) => console.log('Clone completed!')
   }
 );
 ```
@@ -115,7 +298,11 @@ const repo = await client.clone(
   - `bare` (boolean): Create bare repository
   - `branch` (string): Specific branch to clone
   - `depth` (number): Clone depth for shallow clone
-  - `progress` (function): Progress callback
+  - `onProgress` (function): Progress event callback
+  - `onStageChange` (function): Stage change event callback
+  - `onComplete` (function): Completion event callback
+  - `progressManager` (object): Custom progress manager instance
+  - `progress` (function): Legacy progress callback (deprecated)
 
 **Returns:** Promise<Object> with repository information
 
@@ -220,13 +407,19 @@ import {
   syncRepository,
   getRepositoryHealth,
   listRepositories,
-  initRepository
+  initRepository,
+  // Progress management
+  GitProgressManager,
+  createProgressManager,
+  createSilentProgressManager,
+  createCLIProgressManager,
+  CLONE_STAGES
 } from '@thinkeloquent/github-sdk-clone';
 ```
 
 #### cloneRepository(repoUrl, targetDir, options)
 
-Clone with progress tracking and advanced options.
+Clone with comprehensive progress tracking and advanced options.
 
 ```javascript
 const repo = await cloneRepository(
@@ -235,10 +428,20 @@ const repo = await cloneRepository(
   {
     client: { token: process.env.GITHUB_TOKEN },
     clone: { depth: 1, branch: 'main' },
-    onProgress: (progress) => console.log(`Progress: ${progress}%`)
+    onProgress: (data) => console.log(`${data.percentage}% - ${data.message}`),
+    onStageChange: (data) => console.log(`Stage: ${data.stage}`),
+    onComplete: (data) => console.log('Clone completed!'),
+    showProgress: true  // Shows CLI progress bar
   }
 );
 ```
+
+**New Progress Options:**
+- `onProgress` (function): Detailed progress data callback
+- `onStageChange` (function): Clone stage change callback
+- `onComplete` (function): Operation completion callback
+- `showProgress` (boolean): Show CLI progress bar
+- `progressManager` (object): Custom progress manager instance
 
 #### syncRepository(repoName, options)
 
@@ -285,8 +488,8 @@ const results = await batchClone([
       console.log(`Successfully cloned ${result.name}`);
     }
   },
-  onProgress: (repoUrl, progress) => {
-    console.log(`${repoUrl}: ${progress}%`);
+  onProgress: (repoUrl, data) => {
+    console.log(`${repoUrl}: ${data.percentage}% - ${data.message}`);
   }
 });
 
@@ -382,6 +585,7 @@ gh-clone list --json
 --branch <branch>             # Specific branch to clone
 --depth <number>              # Shallow clone depth
 --bare                        # Create bare repository
+--no-progress                 # Disable progress display
 ```
 
 #### Pull/Push Options
@@ -479,7 +683,7 @@ if (status.status.ahead > 0) {
 ### Batch Operations with Progress Tracking
 
 ```javascript
-import { batchClone } from '@thinkeloquent/github-sdk-clone';
+import { batchClone, CLONE_STAGES } from '@thinkeloquent/github-sdk-clone';
 
 const repositories = [
   'https://github.com/facebook/react.git',
@@ -490,14 +694,19 @@ const repositories = [
 const results = await batchClone(repositories, {
   concurrency: 2,
   client: { token: process.env.GITHUB_TOKEN },
-  onProgress: (repoUrl, progress) => {
-    console.log(`${repoUrl}: ${progress}%`);
+  onProgress: (repoUrl, data) => {
+    console.log(`${repoUrl}: ${data.percentage}% - ${data.message}`);
+    
+    // Handle specific stages
+    if (data.stage === CLONE_STAGES.COMPLETE) {
+      console.log(`✅ ${repoUrl} completed successfully!`);
+    }
   },
   onComplete: (repoUrl, result, error) => {
     if (error) {
       console.error(`❌ ${repoUrl}: ${error.message}`);
     } else {
-      console.log(`✅ ${result.name}: Cloned successfully`);
+      console.log(`✅ ${result.name}: Cloned to ${result.path}`);
     }
   }
 });
@@ -523,14 +732,30 @@ const client = new GitClient({
   }
 });
 
-// Clone with specific options
+// Clone with specific options and detailed progress tracking
 await client.clone(
   'https://github.com/torvalds/linux.git',
   'linux-kernel',
   {
     depth: 1,
     branch: 'master',
-    progress: (data) => console.log('Clone progress:', data)
+    onProgress: (data) => {
+      console.log(`Clone progress: ${data.percentage}% - ${data.message}`);
+      
+      // Send progress to monitoring system
+      monitoring.updateCloneProgress(data.operationId, {
+        percentage: data.percentage,
+        stage: data.stage,
+        timestamp: Date.now()
+      });
+    },
+    onStageChange: (data) => {
+      console.log(`Stage changed: ${data.stage} - ${data.description}`);
+    },
+    onComplete: (data) => {
+      console.log('Clone operation completed successfully!');
+      monitoring.completeCloneOperation(data.operationId, data.result);
+    }
   }
 );
 
@@ -602,3 +827,33 @@ Or use the CLI verbose flag:
 ```bash
 gh-clone clone https://github.com/octocat/Hello-World.git hello-world --verbose
 ```
+
+## New in This Version
+
+### Progress Tracking Features
+
+This version introduces comprehensive progress tracking capabilities:
+
+- **Silent by default**: No progress output unless explicitly requested by consuming applications
+- **Detailed progress data**: Percentage completion, stage information, timing data, and messages
+- **Multiple progress consumers**: Same progress data can be used by logging, UI, analytics, and monitoring systems simultaneously
+- **CLI progress bars**: Optional visual progress display in terminal applications
+- **Custom progress managers**: Full control over how progress is tracked and displayed
+- **React/Vue integration**: Easy integration with modern web frameworks
+- **Stage-based tracking**: Monitor clone phases (initializing, cloning, resolving deltas, checking out, complete)
+
+### Enhanced API
+
+- New progress callbacks: `onProgress`, `onStageChange`, `onComplete`
+- Progress manager support: `progressManager` option for custom implementations  
+- CLI progress control: `--no-progress` flag to disable progress display
+- Stage constants: `CLONE_STAGES` for consistent stage handling
+- Factory functions: `createSilentProgressManager`, `createCLIProgressManager`
+
+### Backward Compatibility
+
+- All existing APIs continue to work unchanged
+- Legacy `progress` callback still supported (deprecated but functional)
+- No breaking changes to existing integrations
+
+For complete progress tracking documentation, see [PROGRESS.md](./PROGRESS.md).

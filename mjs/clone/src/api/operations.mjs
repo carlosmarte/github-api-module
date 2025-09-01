@@ -6,6 +6,7 @@
 import { GitClient } from '../client/GitClient.mjs';
 import { GitError, ValidationError } from '../utils/errors.mjs';
 import { validateRepository, validatePath } from '../utils/validation.mjs';
+import { createSilentProgressManager, createCLIProgressManager } from '../utils/progress.mjs';
 
 /**
  * Create a GitClient instance with provided options
@@ -24,7 +25,11 @@ function createClient(options = {}) {
  * @param {Object} [options] - Operation options
  * @param {Object} [options.client] - Client configuration
  * @param {Object} [options.clone] - Clone-specific options
- * @param {Function} [options.onProgress] - Progress callback
+ * @param {Function} [options.onProgress] - Progress callback (receives detailed progress data)
+ * @param {Function} [options.onStageChange] - Stage change callback
+ * @param {Function} [options.onComplete] - Completion callback
+ * @param {boolean} [options.showProgress=false] - Show CLI progress bar
+ * @param {Object} [options.progressManager] - Custom progress manager instance
  * @returns {Promise<Object>} Repository information
  * 
  * @example
@@ -37,7 +42,8 @@ function createClient(options = {}) {
  *   {
  *     client: { token: process.env.GITHUB_TOKEN },
  *     clone: { depth: 1, branch: 'main' },
- *     onProgress: (progress) => console.log(`Progress: ${progress}%`)
+ *     onProgress: (data) => console.log(`${data.percentage}%: ${data.message}`),
+ *     onStageChange: (data) => console.log(`Stage: ${data.stage}`)
  *   }
  * );
  * ```
@@ -46,23 +52,31 @@ export async function cloneRepository(repoUrl, targetDir, options = {}) {
   try {
     const client = createClient(options.client);
     
-    if (options.onProgress) {
-      options.onProgress(0);
+    // Create appropriate progress manager
+    let progressManager;
+    if (options.progressManager) {
+      progressManager = options.progressManager;
+    } else if (options.showProgress) {
+      progressManager = createCLIProgressManager({
+        onProgress: options.onProgress,
+        onStageChange: options.onStageChange,
+        onComplete: options.onComplete
+      });
+    } else {
+      progressManager = createSilentProgressManager({
+        onProgress: options.onProgress,
+        onStageChange: options.onStageChange,
+        onComplete: options.onComplete
+      });
     }
 
     const result = await client.clone(repoUrl, targetDir, {
       ...options.clone,
-      progress: options.onProgress ? (data) => {
-        // Parse git progress and call callback
-        if (options.onProgress) {
-          options.onProgress(50); // Simplified progress tracking
-        }
-      } : undefined
+      progressManager,
+      onProgress: options.onProgress,
+      onStageChange: options.onStageChange,
+      onComplete: options.onComplete
     });
-
-    if (options.onProgress) {
-      options.onProgress(100);
-    }
 
     return result;
   } catch (error) {

@@ -5,6 +5,7 @@
 import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import { GitClient } from '../src/client/GitClient.mjs';
 import { GitError, ValidationError } from '../src/utils/errors.mjs';
+import { createSilentProgressManager } from '../src/utils/progress.mjs';
 import { existsSync, rmSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
@@ -179,6 +180,39 @@ describe('GitClient', () => {
       mkdirSync(repoPath, { recursive: true });
       
       await expect(client.clone(TEST_REPO_URL, TEST_REPO_NAME)).rejects.toThrow(ValidationError);
+    });
+
+    test('accepts progress callbacks', async () => {
+      const onProgress = jest.fn();
+      const onStageChange = jest.fn();
+      const onComplete = jest.fn();
+
+      // This will fail due to network, but we can test the setup
+      try {
+        await client.clone(TEST_REPO_URL, TEST_REPO_NAME, {
+          onProgress,
+          onStageChange,
+          onComplete
+        });
+      } catch (error) {
+        // Expected to fail, we're just testing the interface
+        expect(error).toBeInstanceOf(GitError);
+      }
+    });
+
+    test('accepts custom progress manager', async () => {
+      const onProgress = jest.fn();
+      const progressManager = createSilentProgressManager({ onProgress });
+
+      // This will fail due to network, but we can test the setup
+      try {
+        await client.clone(TEST_REPO_URL, TEST_REPO_NAME, {
+          progressManager
+        });
+      } catch (error) {
+        // Expected to fail, we're just testing the interface
+        expect(error).toBeInstanceOf(GitError);
+      }
     });
 
     // Note: Actual clone tests would require network access and are typically run in integration tests

@@ -30,6 +30,13 @@ import {
   validateCloneOptions, 
   validateRepositoryOperation 
 } from './src/utils/validation.mjs';
+import {
+  GitProgressManager,
+  createProgressManager,
+  createSilentProgressManager,
+  createCLIProgressManager,
+  CLONE_STAGES
+} from './src/utils/progress.mjs';
 
 /**
  * Create a new Git Repository Management client
@@ -83,6 +90,13 @@ export {
   // API operations
   operations,
   
+  // Progress management
+  GitProgressManager,
+  createProgressManager,
+  createSilentProgressManager,
+  createCLIProgressManager,
+  CLONE_STAGES,
+  
   // Error classes
   GitError,
   AuthError,
@@ -135,13 +149,26 @@ export const {
  * ```javascript
  * import { clone } from '@thinkeloquent/clone';
  * 
+ * // Basic clone with progress callbacks
  * const repo = await clone(
  *   'https://github.com/octocat/Hello-World.git',
  *   'hello-world',
  *   {
  *     token: process.env.GITHUB_TOKEN,
  *     depth: 1,
- *     branch: 'main'
+ *     branch: 'main',
+ *     onProgress: (data) => console.log(`${data.percentage}% - ${data.message}`),
+ *     onStageChange: (data) => console.log(`Stage: ${data.stage}`)
+ *   }
+ * );
+ * 
+ * // Clone with CLI progress bar
+ * const repo2 = await clone(
+ *   'https://github.com/octocat/Hello-World.git',
+ *   'hello-world-2',
+ *   {
+ *     token: process.env.GITHUB_TOKEN,
+ *     showProgress: true
  *   }
  * );
  * ```
@@ -158,7 +185,11 @@ export async function clone(repoUrl, targetDir, options = {}) {
       depth: options.depth,
       bare: options.bare
     },
-    onProgress: options.onProgress
+    onProgress: options.onProgress,
+    onStageChange: options.onStageChange,
+    onComplete: options.onComplete,
+    showProgress: options.showProgress,
+    progressManager: options.progressManager
   });
 }
 

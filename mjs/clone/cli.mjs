@@ -16,6 +16,7 @@ import { fileURLToPath } from 'url';
 import { GitClient } from './src/client/GitClient.mjs';
 import { GitError, AuthError } from './src/utils/errors.mjs';
 import { setupConfig, loadConfig } from './src/cli/config.mjs';
+import { createCLIProgressManager } from './src/utils/progress.mjs';
 
 // Load environment variables
 dotenv.config();
@@ -135,26 +136,37 @@ program
   .option('-b, --branch <branch>', 'Specific branch to clone')
   .option('--depth <depth>', 'Clone depth for shallow clone', parseInt)
   .option('--bare', 'Create bare repository')
+  .option('--no-progress', 'Disable progress display')
   .action(async (repoUrl, targetDir, cmdOptions) => {
     const globalOptions = program.opts();
-    const spinner = ora('Cloning repository...').start();
+    let progressManager = null;
     
     try {
       const client = createClient(globalOptions);
       
-      spinner.text = `Cloning ${repoUrl}...`;
+      // Set up progress tracking (unless disabled)
+      const showProgress = !cmdOptions.noProgress && !globalOptions.quiet;
+      
+      if (showProgress) {
+        progressManager = createCLIProgressManager({
+          onStageChange: (data) => {
+            if (globalOptions.verbose) {
+              console.log(chalk.blue(`[${data.stage}] ${data.description}`));
+            }
+          }
+        });
+      }
       
       const result = await client.clone(repoUrl, targetDir, {
         branch: cmdOptions.branch,
         depth: cmdOptions.depth,
         bare: cmdOptions.bare,
-        progress: (data) => {
-          spinner.text = `Cloning ${repoUrl}... ${data}`;
-        }
+        progressManager: progressManager,
+        onProgress: globalOptions.verbose ? (data) => {
+          console.log(chalk.gray(`Progress: ${data.percentage}% - ${data.message || ''}`));
+        } : undefined
       });
 
-      spinner.succeed(`Successfully cloned to ${result.name}`);
-      
       if (!globalOptions.quiet) {
         console.log(chalk.green('✓ Repository cloned successfully'));
         console.log(chalk.cyan('Path:'), result.path);
@@ -169,7 +181,9 @@ program
       }
 
     } catch (error) {
-      spinner.fail('Clone failed');
+      if (progressManager) {
+        console.log(chalk.red('✗ Clone failed'));
+      }
       handleError(error, globalOptions);
     }
   });

@@ -8,6 +8,7 @@ import { join, resolve, basename } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import { GitError, AuthError, ValidationError } from '../utils/errors.mjs';
 import { validateRepository, validatePath } from '../utils/validation.mjs';
+import { createSilentProgressManager, CLONE_STAGES } from '../utils/progress.mjs';
 
 /**
  * Main Git Repository Management Client
@@ -120,7 +121,11 @@ export class GitClient {
    * @param {boolean} [options.bare=false] - Create bare repository
    * @param {string} [options.branch] - Specific branch to clone
    * @param {number} [options.depth] - Clone depth for shallow clone
-   * @param {Function} [options.progress] - Progress callback
+   * @param {Function} [options.progress] - Progress callback (deprecated, use progressManager)
+   * @param {Object} [options.progressManager] - Progress manager instance
+   * @param {Function} [options.onProgress] - Progress event callback
+   * @param {Function} [options.onStageChange] - Stage change event callback
+   * @param {Function} [options.onComplete] - Completion event callback
    * @returns {Promise<Object>} Repository information
    * 
    * @example
@@ -132,12 +137,15 @@ export class GitClient {
    *   {
    *     branch: 'main',
    *     depth: 1,
-   *     progress: (progress) => console.log(progress)
+   *     onProgress: (data) => console.log(`${data.percentage}%: ${data.message}`),
+   *     onStageChange: (data) => console.log(`Stage: ${data.stage}`)
    *   }
    * );
    * ```
    */
   async clone(repoUrl, targetDir, options = {}) {
+    let progressManager = null;
+    
     try {
       validateRepository(repoUrl);
       
@@ -153,6 +161,16 @@ export class GitClient {
         throw new ValidationError(`Directory '${targetDir}' already exists`);
       }
 
+      // Set up progress tracking
+      progressManager = options.progressManager || createSilentProgressManager({
+        onProgress: options.onProgress,
+        onStageChange: options.onStageChange,
+        onComplete: options.onComplete
+      });
+
+      const operationId = `clone-${targetDir}-${Date.now()}`;
+      progressManager.start(operationId, `Cloning ${targetDir}`, 100);
+
       const authUrl = this._getAuthenticatedUrl(repoUrl);
       const cloneOptions = [];
 
@@ -161,12 +179,31 @@ export class GitClient {
       if (options.branch) cloneOptions.push('--branch', options.branch);
       if (options.depth) cloneOptions.push('--depth', options.depth.toString());
 
+      // Add progress reporting if git supports it
+      cloneOptions.push('--progress');
+
+      progressManager.setStage(CLONE_STAGES.INITIALIZING, 'Preparing clone operation...');
+      progressManager.update(10);
+
       if (this.verbose) {
         console.log(`Cloning ${repoUrl} to ${targetDir}...`);
       }
 
+      progressManager.setStage(CLONE_STAGES.CLONING, 'Cloning repository...');
+      progressManager.update(20);
+
+      // Create git instance with progress handler
+      const gitWithProgress = simpleGit({
+        baseDir: this.baseDir,
+        binary: 'git',
+        progress: progressManager.createGitProgressCallback()
+      });
+
       // Perform clone
-      await this.git.clone(authUrl, targetDir, cloneOptions);
+      await gitWithProgress.clone(authUrl, targetDir, cloneOptions);
+
+      progressManager.setStage(CLONE_STAGES.CHECKING_OUT, 'Finalizing...');
+      progressManager.update(90);
 
       // Get repository information
       const repoGit = simpleGit(repoPath);
@@ -176,7 +213,7 @@ export class GitClient {
         repoGit.branch(['-a'])
       ]);
 
-      return {
+      const result = {
         name: targetDir,
         path: repoPath,
         url: repoUrl,
@@ -187,7 +224,25 @@ export class GitClient {
         clonedAt: new Date().toISOString()
       };
 
+      progressManager.complete(result);
+
+      // Support legacy progress callback
+      if (options.progress && typeof options.progress === 'function') {
+        options.progress('Clone completed successfully');
+      }
+
+      return result;
+
     } catch (error) {
+      if (progressManager) {
+        progressManager.error(error);
+      }
+      
+      // Support legacy progress callback for errors
+      if (options.progress && typeof options.progress === 'function') {
+        options.progress(`Clone failed: ${error.message}`);
+      }
+      
       throw new GitError(`Clone failed: ${error.message}`, error);
     }
   }
