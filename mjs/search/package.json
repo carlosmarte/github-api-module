@@ -1,6 +1,6 @@
 {
-  "name": "@github-api/search",
-  "version": "1.0.0",
+  "name": "@thinkeloquent/github-sdk-search",
+  "version": "0.0.1",
   "description": "Enterprise-grade GitHub Search API client with scalability features",
   "type": "module",
   "engines": {

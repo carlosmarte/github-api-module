@@ -1,6 +1,6 @@
 {
-  "name": "@thinkeloquent/users",
-  "version": "1.0.0",
+  "name": "@thinkeloquent/github-sdk-users",
+  "version": "0.0.1",
   "description": "GitHub Users API client and CLI - Complete user profile and discovery management",
   "type": "module",
   "main": "index.mjs",

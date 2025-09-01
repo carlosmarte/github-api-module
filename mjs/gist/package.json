@@ -1,6 +1,6 @@
 {
-  "name": "@thinkeloquent/gist",
-  "version": "1.0.0",
+  "name": "@thinkeloquent/github-sdk-gist",
+  "version": "0.0.1",
   "description": "GitHub Gists API client - CLI tool and SDK for managing GitHub gists",
   "type": "module",
   "main": "index.mjs",

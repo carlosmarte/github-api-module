@@ -1,6 +1,6 @@
 {
-  "name": "@thinkeloquent/pulls",
-  "version": "1.0.0",
+  "name": "@thinkeloquent/github-sdk-pulls",
+  "version": "0.0.1",
   "description": "GitHub Pull Requests API client and CLI",
   "type": "module",
   "main": "index.mjs",

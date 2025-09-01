@@ -1,6 +1,6 @@
 {
-  "name": "@thinkeloquent/teams",
-  "version": "1.0.0",
+  "name": "@thinkeloquent/github-sdk-teams",
+  "version": "0.0.1",
   "description": "GitHub Teams API CLI and SDK for Node.js",
   "type": "module",
   "main": "index.mjs",

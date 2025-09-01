@@ -1,6 +1,6 @@
 {
-  "name": "@thinkeloquent/repos",
-  "version": "1.0.0",
+  "name": "@thinkeloquent/github-sdk-repos",
+  "version": "0.0.1",
   "description": "GitHub Repository API client and CLI - Full-featured repository management",
   "type": "module",
   "main": "index.mjs",

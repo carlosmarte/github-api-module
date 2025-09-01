@@ -1,6 +1,6 @@
 {
-  "name": "@github-api/git",
-  "version": "1.0.0",
+  "name": "@thinkeloquent/github-sdk-git",
+  "version": "0.0.1",
   "description": "GitHub Git API CLI and SDK",
   "type": "module",
   "main": "./index.mjs",
