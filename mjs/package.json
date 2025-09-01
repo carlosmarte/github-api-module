@@ -14,7 +14,8 @@
     "users",
     "git",
     "pulls",
-    "search"
+    "search",
+    "clone"
   ],
   "scripts": {
     "changeset": "changeset",
