@@ -55,13 +55,18 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/github-api-module/users.git"
+    "url": "https://github.com/github-api-module/monorepo.git",
+    "directory": "mjs/users"
   },
-  "homepage": "https://github.com/github-api-module/users#readme",
+  "homepage": "https://github.com/github-api-module/monorepo/tree/main/mjs/users#readme",
   "bugs": {
-    "url": "https://github.com/github-api-module/users/issues"
+    "url": "https://github.com/github-api-module/monorepo/issues"
   },
   "files": [
     "src/",

@@ -74,5 +74,28 @@
     "prom-client": "^15.1.0",
     "@opentelemetry/api": "^1.7.0",
     "@opentelemetry/sdk-node": "^0.46.0"
-  }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/github-api-module/monorepo.git",
+    "directory": "mjs/search"
+  },
+  "homepage": "https://github.com/github-api-module/monorepo/tree/main/mjs/search#readme",
+  "bugs": {
+    "url": "https://github.com/github-api-module/monorepo/issues"
+  },
+  "files": [
+    "src/",
+    "lib/",
+    "endpoints/",
+    "utils/",
+    "types/",
+    "index.mjs",
+    "cli.mjs",
+    "README.md"
+  ]
 }

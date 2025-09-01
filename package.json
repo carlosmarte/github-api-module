@@ -1,0 +1,42 @@
+{
+  "name": "github-api-module",
+  "version": "1.0.0",
+  "description": "GitHub API modules - Complete collection of CLI tools and SDKs for GitHub REST API",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "mjs/*"
+  ],
+  "scripts": {
+    "changeset": "changeset",
+    "changeset:version": "changeset version",
+    "changeset:publish": "changeset publish",
+    "changeset:status": "changeset status",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "format": "npm run format --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.6"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/github-api-module/monorepo.git"
+  },
+  "keywords": [
+    "github",
+    "api",
+    "cli",
+    "sdk",
+    "monorepo",
+    "workspace",
+    "rest"
+  ],
+  "author": "GitHub API Module Contributors",
+  "license": "MIT"
+}

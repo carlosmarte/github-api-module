@@ -68,12 +68,17 @@
   ],
   "author": "GitHub API Module",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/github-api-module/reactions.git"
+    "url": "https://github.com/github-api-module/monorepo.git",
+    "directory": "mjs/reactions"
   },
   "bugs": {
-    "url": "https://github.com/github-api-module/reactions/issues"
+    "url": "https://github.com/github-api-module/monorepo/issues"
   },
-  "homepage": "https://github.com/github-api-module/reactions#readme"
+  "homepage": "https://github.com/github-api-module/monorepo/tree/main/mjs/reactions#readme"
 }

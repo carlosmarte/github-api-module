@@ -57,13 +57,18 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/github-api-module/repos.git"
+    "url": "https://github.com/github-api-module/monorepo.git",
+    "directory": "mjs/repos"
   },
-  "homepage": "https://github.com/github-api-module/repos#readme",
+  "homepage": "https://github.com/github-api-module/monorepo/tree/main/mjs/repos#readme",
   "bugs": {
-    "url": "https://github.com/github-api-module/repos/issues"
+    "url": "https://github.com/github-api-module/monorepo/issues"
   },
   "files": [
     "src/",
