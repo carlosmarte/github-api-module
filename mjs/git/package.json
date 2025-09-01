@@ -1,5 +1,5 @@
 {
-  "name": "@github-api/git",
+  "name": "@thinkeloquent/git",
   "version": "1.0.0",
   "description": "GitHub Git API CLI and SDK",
   "type": "module",

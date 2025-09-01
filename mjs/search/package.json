@@ -1,5 +1,5 @@
 {
-  "name": "@github-api/search",
+  "name": "@thinkeloquent/search",
   "version": "1.0.0",
   "description": "Enterprise-grade GitHub Search API client with scalability features",
   "type": "module",

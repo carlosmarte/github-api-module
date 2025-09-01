@@ -1,5 +1,5 @@
 {
-  "name": "@github-api/gist",
+  "name": "@thinkeloquent/gist",
   "version": "1.0.0",
   "description": "GitHub Gists API client - CLI tool and SDK for managing GitHub gists",
   "type": "module",

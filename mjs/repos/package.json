@@ -1,5 +1,5 @@
 {
-  "name": "@github-api/repos",
+  "name": "@thinkeloquent/repos",
   "version": "1.0.0",
   "description": "GitHub Repository API client and CLI - Full-featured repository management",
   "type": "module",

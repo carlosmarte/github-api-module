@@ -1,5 +1,5 @@
 {
-  "name": "@github/activity-sdk",
+  "name": "@thinkeloquent/activity-sdk",
   "version": "1.0.0",
   "description": "GitHub Activity API SDK and CLI - Complete implementation for events, notifications, stars, and watching",
   "type": "module",

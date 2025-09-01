@@ -1,5 +1,5 @@
 {
-  "name": "@github-api/reactions",
+  "name": "@thinkeloquent/reactions",
   "version": "1.0.0",
   "description": "GitHub Reactions API CLI and SDK - Interact with reactions to various GitHub entities",
   "type": "module",

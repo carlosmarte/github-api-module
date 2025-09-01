@@ -1,0 +1,24 @@
+{
+  "name": "@thinkeloquent/github-api-modules",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "workspaces": [
+    "activity",
+    "gist",
+    "git",
+    "issues",
+    "pulls",
+    "reactions",
+    "repos",
+    "search",
+    "teams",
+    "users"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

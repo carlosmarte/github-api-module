@@ -1,5 +1,5 @@
 {
-  "name": "@github-api/issues",
+  "name": "@thinkeloquent/issues",
   "version": "1.0.0",
   "description": "GitHub Issues API client and CLI tool",
   "type": "module",
