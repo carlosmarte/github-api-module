@@ -1,5 +1,5 @@
 {
-  "name": "@github-api/users",
+  "name": "@thinkeloquent/users",
   "version": "1.0.0",
   "description": "GitHub Users API client and CLI - Complete user profile and discovery management",
   "type": "module",

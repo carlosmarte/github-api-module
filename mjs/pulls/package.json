@@ -1,5 +1,5 @@
 {
-  "name": "@github-api/pulls",
+  "name": "@thinkeloquent/pulls",
   "version": "1.0.0",
   "description": "GitHub Pull Requests API client and CLI",
   "type": "module",
